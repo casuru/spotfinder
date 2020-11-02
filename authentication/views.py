@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, views, status, response
 from authentication.serializers import UserSerializer
+from authentication.permissions import IsStaffOrPostOnly, IsUnauthenticatedOrCannotPostUser
 from rest_framework.permissions import IsAuthenticated
 User = get_user_model()
 
@@ -9,6 +10,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
     queryset = User.objects.all()
+    permission_classes = (IsStaffOrPostOnly, IsUnauthenticatedOrCannotPostUser, )
 
 
 class MeView(views.APIView):
