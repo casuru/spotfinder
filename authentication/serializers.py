@@ -13,9 +13,20 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
 
-        return User.objects.create_user(
-            **validated_data
-        )
+        if not validated_data.get("confirm_password", None):
+
+            raise serializers.ValidationError({"confirm_password": "This field is required."})
+
+
+
+        confirm_password = validated_data.pop("confirm_password")
+
+        if confirm_password != validated_data["password"]:
+
+            raise serializers.ValidationError({"non_field_errors": "Confirm password and password must match."})
+
+
+        return User.objects.create_user(**validated_data)
 
 
     def update(self, instance, validated_data):
@@ -29,11 +40,15 @@ class UserSerializer(serializers.ModelSerializer):
 
         if validated_data.get("confirm_password") and validated_data.get("password"):
 
-            if validated_data["confirm_password"] == validated_data["password"]:
+            if validated_data["confirm_password"] != validated_data["password"]:
 
-                instance.set_password(validated_data["password"])
+                raise serializers.ValidationError({"non_field_errors": "Confirm password and password must match."})
 
-                instance.save()
+            instance.set_password(validated_data["password"])
+
+            instance.save()
+
+            
 
         return instance
 
@@ -41,4 +56,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = User
-        fields = "__all__"
+        fields = (
+            "id", "username", "email", "first_name", "last_name", "password", "confirm_password"
+        )
+        extra_kwargs = {
+            "password":{
+                "write_only": True
+            },
+            "confirm_password":{
+                "write_only": True
+            }
+        }
