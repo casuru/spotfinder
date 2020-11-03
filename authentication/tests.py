@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient, force_authenticate
 from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
+
 User = get_user_model()
 
 
