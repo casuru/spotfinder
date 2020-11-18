@@ -39,11 +39,25 @@ class TestSpotViews(APITestCase):
 
     def test_list_spots(self):
 
+        self.client.force_authenticate(user = self.example_user)
+
         response = self.client.get(
             reverse("spot-list")
         )
 
         self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+
+    
+    def test_list_spots_near_user(self):
+
+        self.client.force_authenticate(user = self.example_user)
+
+        response = self.client.get("/v1/spots/", {"lat":"0", "lng":"0"})
+
+        self.assertEquals(response.status_code, status.HTTP_200_OK)
+
+        
 
 
     def test_create_spot(self):
